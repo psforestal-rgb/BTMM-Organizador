@@ -61,3 +61,90 @@ body {
   color: var(--geo-acento);
   font-weight: 700;
 }
+
+button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--geo-acento);
+  background: white;
+  color: var(--geo-acento);
+  font-size: 1rem;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+input[type='text'] {
+  min-height: 2.75rem;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #0003;
+  border-radius: 0.5rem;
+}
+
+.geo-panel {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.geo-captura-form {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.geo-lista-capturas {
+  list-style: none;
+  padding: 0;
+}
+
+.geo-lista-capturas li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #0001;
+}
+
+.geo-etiqueta-estado {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.geo-acciones-grandes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.geo-retomar {
+  border: 2px solid var(--geo-acento);
+}
+
+.geo-boton-capturar {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.geo-grupo-radar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.geo-hallazgo {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.geo-decisiones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

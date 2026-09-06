@@ -1,27 +1,30 @@
 # Progreso — GEO v0.1.0-alpha
 
-**Fase cerrada**: 3 (sincronización real).
+**Fase cerrada**: 4 (las cuatro superficies).
 
 **Último commit**: (ver `git log --oneline -1` tras el commit de esta fase)
 
-**Próximo paso**: Fase 4 — las cuatro superficies (HOY, CAPTURAR, RADAR,
-BITÁCORA) en `app/src/ui`, cableadas a Dexie vía `dexie-react-hooks` y al
-dominio/sync ya construidos. Trámites e iniciativas viven dentro de HOY,
-no en pantallas propias.
+**Próximo paso**: Fase 5 — escenario canónico end-to-end en Playwright
+con dos contextos de navegador (`DISPOSITIVO-A`/`DISPOSITIVO-B`) contra
+un servidor FastAPI real levantado para la prueba (webServer de
+Playwright o proceso `uvicorn` propio), más casos de offline total,
+captura, interrupción/reanudación y exportación.
 
-**Sincronización real implementada**: servidor con `/sync/push`,
-`/sync/pull`, `/sync/status`, `/sync/conflictos` (extra, no rompe la
-sección 6) y `/export/bitacora`; fusión por campo con field_meta
-disperso (un campo sin editar aún no tiene entrada, así que la primera
-edición real nunca es "conflicto" — solo lo es cuando dos dispositivos
-distintos ya editaron el mismo campo); idempotencia por
-`(device_id, client_sequence)`; server_seq compartido entre `evento` y
-`cambio_registro` para paginación intercalada. Cliente con
-`SyncAdapterRest`, `outbox.ts` (cola, reintentos con retroceso
-exponencial, reanudación por `ultimo_server_seq_recibido`) y
-`fusion.ts` (paridad con Python vía tabla de verdad compartida en
-`docs/fixtures/fusion_casos.json`, copiada a `app/src/sync/` con prueba
-de hash SHA-256).
+**Cuatro superficies wireadas de verdad** (no placeholders): HOY (crea
+asignaciones, muestra capacidad/buffer vía `planificarDia` real,
+iniciar/terminar/interrumpir/retomar actividad), CAPTURAR (persiste en
+Dexie en <1500ms, sin bloquear), RADAR (ejecuta las 7 reglas sobre
+snapshot real, decisión obligatoria de las 6 vías —
+`aplicarDecisionCierre` rechaza cualquier "descartar"), BITÁCORA (estado
+de sync, conflictos abiertos, persistencia de almacenamiento, export
+JSON/CSV real). Verificado a mano con Playwright contra el build de
+producción: crear asignación → iniciar → interrumpir → retomar, sin
+errores de consola.
+
+**Gaps conocidos, no bloqueantes para CA-12**: no hay formulario de
+creación de trámites en la UI (el motor `dominio/tramites.ts` con
+`proximaAccion` sí está implementado y probado); el escenario canónico
+de la sección 13 no usa trámites, así que esto no afecta CA-12.
 
 **Comandos de verificación**:
 ```
