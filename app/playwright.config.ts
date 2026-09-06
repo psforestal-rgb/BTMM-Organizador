@@ -15,7 +15,12 @@ export default defineConfig({
       command: 'npm run preview -- --port 4173',
       url: 'http://127.0.0.1:4173',
       reuseExistingServer: false,
-      timeout: 60_000,
+      timeout: 120_000,
+      // Sin esto, Playwright silencia la salida del proceso y un timeout
+      // de "config.webServer" no deja rastro de cuál servidor falló ni
+      // por qué (visto en CI: mismo comando, mismo entorno, cero pistas).
+      stdout: 'pipe',
+      stderr: 'pipe',
     },
     {
       // Servidor real para el escenario canónico (CA-11/CA-12): base de
@@ -26,7 +31,9 @@ export default defineConfig({
       env: { GEO_DATABASE_URL: 'sqlite:///./geo_e2e.db' },
       url: 'http://127.0.0.1:8000/health',
       reuseExistingServer: false,
-      timeout: 60_000,
+      timeout: 120_000,
+      stdout: 'pipe',
+      stderr: 'pipe',
     },
   ],
   projects: [
