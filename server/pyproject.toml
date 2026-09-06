@@ -4,6 +4,10 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+# B008: FastAPI's `Depends(...)` in a parameter default is the documented,
+# idiomatic pattern for its dependency injection — not the antipattern B008
+# guards against.
+ignore = ["B008"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
