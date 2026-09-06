@@ -35,7 +35,13 @@ Verificación completa:
 ```bash
 cd app
 npm run typecheck && npm run lint && npm test -- --run && npm run build
-npx playwright test  # requiere `npx playwright install chromium` la primera vez
+
+# El escenario end-to-end (incluido escenario-canonico) necesita Chromium
+# y el servidor con su entorno virtual ya preparado (ver abajo): Playwright
+# levanta ambos automáticamente (playwright.config.ts) contra una base de
+# datos SQLite efímera propia, sin tocar geo.db de desarrollo.
+npx playwright install chromium   # solo la primera vez
+npx playwright test
 ```
 
 ## Arranque rápido — servidor

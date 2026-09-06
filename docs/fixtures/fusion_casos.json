@@ -1,0 +1,91 @@
+[
+  {
+    "nombre": "gana la marca temporal mayor",
+    "campo": "prioridad",
+    "valor_actual": "media",
+    "meta_actual": { "updated_at": "2026-09-08T08:00:00-06:00", "device_id": "DISPOSITIVO-A" },
+    "valor_entrante": "critica",
+    "meta_entrante": { "updated_at": "2026-09-08T09:00:00-06:00", "device_id": "DISPOSITIVO-B" },
+    "esperado": {
+      "valor": "critica",
+      "meta": { "updated_at": "2026-09-08T09:00:00-06:00", "device_id": "DISPOSITIVO-B" },
+      "conflicto": {
+        "campo": "prioridad",
+        "valor_ganador": "critica",
+        "device_ganador": "DISPOSITIVO-B",
+        "ts_ganador": "2026-09-08T09:00:00-06:00",
+        "valor_perdedor": "media",
+        "device_perdedor": "DISPOSITIVO-A",
+        "ts_perdedor": "2026-09-08T08:00:00-06:00"
+      }
+    }
+  },
+  {
+    "nombre": "empate de marca temporal se resuelve por device_id",
+    "campo": "prioridad",
+    "valor_actual": "media",
+    "meta_actual": { "updated_at": "2026-09-08T09:20:00-06:00", "device_id": "DISPOSITIVO-A" },
+    "valor_entrante": "critica",
+    "meta_entrante": { "updated_at": "2026-09-08T09:20:00-06:00", "device_id": "DISPOSITIVO-B" },
+    "esperado": {
+      "valor": "critica",
+      "meta": { "updated_at": "2026-09-08T09:20:00-06:00", "device_id": "DISPOSITIVO-B" },
+      "conflicto": {
+        "campo": "prioridad",
+        "valor_ganador": "critica",
+        "device_ganador": "DISPOSITIVO-B",
+        "ts_ganador": "2026-09-08T09:20:00-06:00",
+        "valor_perdedor": "media",
+        "device_perdedor": "DISPOSITIVO-A",
+        "ts_perdedor": "2026-09-08T09:20:00-06:00"
+      }
+    }
+  },
+  {
+    "nombre": "campo critico con valores iguales no genera conflicto",
+    "campo": "prioridad",
+    "valor_actual": "media",
+    "meta_actual": { "updated_at": "2026-09-08T09:20:00-06:00", "device_id": "DISPOSITIVO-A" },
+    "valor_entrante": "media",
+    "meta_entrante": { "updated_at": "2026-09-08T08:00:00-06:00", "device_id": "DISPOSITIVO-B" },
+    "esperado": {
+      "valor": "media",
+      "meta": { "updated_at": "2026-09-08T09:20:00-06:00", "device_id": "DISPOSITIVO-A" },
+      "conflicto": null
+    }
+  },
+  {
+    "nombre": "campo no critico no genera conflicto aunque difiera",
+    "campo": "contexto",
+    "valor_actual": "texto A",
+    "meta_actual": { "updated_at": "2026-09-08T09:20:00-06:00", "device_id": "DISPOSITIVO-A" },
+    "valor_entrante": "texto B",
+    "meta_entrante": { "updated_at": "2026-09-08T08:00:00-06:00", "device_id": "DISPOSITIVO-B" },
+    "esperado": {
+      "valor": "texto A",
+      "meta": { "updated_at": "2026-09-08T09:20:00-06:00", "device_id": "DISPOSITIVO-A" },
+      "conflicto": null
+    }
+  },
+  {
+    "nombre": "duracion_estimada_min es numerico y tambien es campo critico",
+    "campo": "duracion_estimada_min",
+    "valor_actual": 90,
+    "meta_actual": { "updated_at": "2026-09-08T08:00:00-06:00", "device_id": "DISPOSITIVO-A" },
+    "valor_entrante": 120,
+    "meta_entrante": { "updated_at": "2026-09-08T09:15:00-06:00", "device_id": "DISPOSITIVO-B" },
+    "esperado": {
+      "valor": 120,
+      "meta": { "updated_at": "2026-09-08T09:15:00-06:00", "device_id": "DISPOSITIVO-B" },
+      "conflicto": {
+        "campo": "duracion_estimada_min",
+        "valor_ganador": 120,
+        "device_ganador": "DISPOSITIVO-B",
+        "ts_ganador": "2026-09-08T09:15:00-06:00",
+        "valor_perdedor": 90,
+        "device_perdedor": "DISPOSITIVO-A",
+        "ts_perdedor": "2026-09-08T08:00:00-06:00"
+      }
+    }
+  }
+]

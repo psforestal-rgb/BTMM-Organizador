@@ -37,6 +37,14 @@ export interface SyncStateRow {
   ultimo_error: string | null
 }
 
+/** Contador de client_sequence, persistente incluso tras purgar el
+ * outbox: eventos y cambios llevan cada uno su propio espacio de
+ * numeración por dispositivo (ambos monótonos, ninguno se reutiliza). */
+export interface ContadorSecuencia {
+  clave: string // `${deviceId}:${tipo}`
+  valor: number
+}
+
 export class GeoDexie extends Dexie {
   eventos!: EntityTable<EventoGEO, 'event_id'>
   outbox!: EntityTable<OutboxItem, 'id'>
@@ -55,6 +63,7 @@ export class GeoDexie extends Dexie {
   conflictos!: EntityTable<Conflicto, 'id'>
   dispositivos!: EntityTable<Dispositivo, 'id'>
   configuraciones!: EntityTable<Configuracion, 'id'>
+  contadoresSecuencia!: EntityTable<ContadorSecuencia, 'clave'>
 
   constructor(nombre: string) {
     super(nombre)
@@ -62,6 +71,7 @@ export class GeoDexie extends Dexie {
       eventos: 'event_id, entity_id, &[device_id+client_sequence], server_seq',
       outbox: 'id, estado, client_sequence',
       syncState: 'device_id',
+      contadoresSecuencia: 'clave',
       capturas: 'id, estado, creado_en',
       asignaciones: 'id, estado, vencimiento, carril, iniciativa_id',
       actividades: 'id, estado, asignacion_id',

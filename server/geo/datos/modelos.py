@@ -172,6 +172,40 @@ class Configuracion(EntidadMutableMixin, Base):
     dias_revision_espera: Mapped[int] = mapped_column(Integer, default=5)
 
 
+class CambioRegistro(Base):
+    """Registro append-only de cada "cambio" recibido (sección 5.3). No es
+    la entidad en sí (esa vive en su propia tabla mutable): es el
+    transporte, necesario para poder paginar /sync/pull igual que los
+    eventos. Se aplica su efecto sobre la entidad correspondiente, pero
+    el registro de la llegada nunca se modifica ni se borra."""
+
+    __tablename__ = "cambio_registro"
+    __table_args__ = (
+        UniqueConstraint("device_id", "client_sequence", name="uq_cambio_device_seq"),
+    )
+
+    change_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    entity_type: Mapped[str] = mapped_column(String(50))
+    entity_id: Mapped[str] = mapped_column(String(36))
+    device_id: Mapped[str] = mapped_column(String(64))
+    client_sequence: Mapped[int] = mapped_column(Integer)
+    occurred_at: Mapped[str] = mapped_column(String(35))
+    base_version: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    campos: Mapped[dict] = mapped_column(JSON)
+    campo_ts: Mapped[dict] = mapped_column(JSON)
+    server_seq: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+
+
+class SecuenciaGlobal(Base):
+    """Contador monótono compartido entre evento y cambio_registro, para
+    que /sync/pull pueda intercalarlos en un único orden de server_seq."""
+
+    __tablename__ = "secuencia_global"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    valor: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class EstadoDispositivoSync(Base):
     """Bookkeeping de sincronización por dispositivo (sección 5.5). No es
     una entidad sincronizable: vive solo en el servidor."""

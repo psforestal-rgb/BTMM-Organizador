@@ -1,26 +1,23 @@
 # Progreso — GEO v0.1.0-alpha
 
-**Fase cerrada**: 2 (motores puros).
+**Fase cerrada**: 6 (cierre). Prototipo completo.
 
-**Último commit**: (ver `git log --oneline -1` tras el commit de esta fase)
+**Último commit**: (ver `git log --oneline -1`)
 
-**Próximo paso**: Fase 3 — sincronización real (endpoints push/pull/status
-en el servidor, fusión por campo en `server/geo/sync/fusion.py` y su
-espejo en `app/src/sync/fusion.ts`, cola/outbox y reintentos en el
-cliente, prueba de dos dispositivos).
+**Estado**: los doce criterios de aceptación tienen evidencia real en
+`docs/INFORME_FINAL.md`. CI de GitHub Actions con cuatro jobs (cliente,
+build, servidor, end-to-end contra servidor real). Rama
+`mvp/v0.1.0-alpha` publicada, tag anotado `v0.1.0-alpha.1` publicado, PR
+en borrador hacia `main`.
 
-**Motores puros ya implementados** en `app/src/dominio/`: `calendario.ts`
-(días hábiles CR), `tiempo.ts` (huecos de agenda), `marcaTemporal.ts`
-(aritmética ISO 8601 sin `Date`), `estados.ts` (transiciones + decisión de
-cierre sin descarte silencioso), `planificador.ts` (greedy determinista,
-buffer de absorción, fragmentación, cuotas de iniciativa),
-`replanificacion.ts` (interrupciones), `radar.ts` (7 reglas). Nota:
-CA-09 (cuotas) quedó resuelto dentro de `planificador.ts`, sin un archivo
-`iniciativas.ts` separado — ajustar la referencia en
-`docs/requisitos/CA-09.md` al escribir `INFORME_FINAL.md`.
+**Próximo paso, si continúa el trabajo**: construir el formulario de
+trámites en `app/src/ui` (el motor ya existe y está probado, ver
+`docs/PENDIENTES_HUMANO.md`); validar humanamente el archivo de
+feriados; decidir sobre CORS antes de cualquier despliegue.
 
-**Comandos de verificación**:
+**Comandos de verificación** (los mismos usados para `INFORME_FINAL.md`):
 ```
 cd app && npm run typecheck && npm run lint && npm test -- --run && npm run build
-cd server && ./.venv/bin/python -m pytest -q --cov=geo --cov-report=term-missing
+cd app && PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium npx playwright test
+cd server && ./.venv/bin/ruff check geo tests && ./.venv/bin/python -m pytest -q --cov=geo --cov-report=term-missing --cov-fail-under=80
 ```
