@@ -267,11 +267,27 @@ contextos de navegador reales.
    CA-11) — el más serio de los cuatro, porque silenciosamente perdía
    páginas completas de la bitácora en bases de datos más grandes que el
    límite de una sola página.
+5. **El job de CI "End-to-end — Playwright" fallaba solo en GitHub
+   Actions**, nunca en desarrollo, con `Timed out waiting Nms from
+   config.webServer` sin ningún rastro de causa. Diagnóstico con
+   `DEBUG=pw:webserver` (documentado ahora como paso permanente del job):
+   los dos `webServer` del array se arrancan secuencialmente — Playwright
+   espera un `200` del primero antes de arrancar el segundo. Sin
+   `--host` explícito, `vite preview` deja que Node resuelva el string
+   `localhost`, cuyo orden de direcciones IPv4/IPv6 no está garantizado
+   igual entre el runner de GitHub Actions y un entorno de desarrollo: el
+   proceso quedaba escuchando (imprimía su propio banner) pero el
+   chequeo de salud de Playwright contra `127.0.0.1:4173` nunca recibía
+   respuesta, así que el servidor real (uvicorn) jamás llegaba a
+   arrancar. Corregido fijando `--host 127.0.0.1` en el comando de
+   `preview`, igual que ya se hacía con `uvicorn`.
 
-Los cuatro se encontraron precisamente porque el escenario canónico se
-verificó contra un servidor real y no contra dobles de prueba — es la
-justificación práctica, no solo la especificación, de por qué la
-sincronización "es real o no existe" (sección 17).
+Los primeros cuatro se encontraron precisamente porque el escenario
+canónico se verificó contra un servidor real y no contra dobles de
+prueba; el quinto, porque el pipeline de CI se verificó ejecutándolo de
+verdad en GitHub Actions y no asumiendo que "pasa en desarrollo" bastaba
+— es la misma justificación práctica extendida a la infraestructura de
+verificación, no solo al dominio (sección 17).
 
 ## Trazabilidad de archivos
 
