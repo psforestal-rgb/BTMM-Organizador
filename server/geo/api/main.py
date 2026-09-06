@@ -2,6 +2,7 @@ import csv
 import io
 
 from fastapi import Depends, FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -20,6 +21,17 @@ from geo.sync.schemas import (
 APP_VERSION = "0.1.0-alpha"
 
 app = FastAPI(title="GEO API", version=APP_VERSION)
+
+# Prototipo sin autenticación ni datos personales: el cliente PWA y el
+# servidor corren en orígenes distintos (Vite en uno, FastAPI en otro) y
+# no hay sesión que proteger todavía. Restringir esto es trabajo para
+# cuando exista un despliegue real (ver docs/PENDIENTES_HUMANO.md).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health")

@@ -40,7 +40,7 @@ def test_pull_paginado_reanuda_sin_huecos_ni_duplicados(db_session):
         vistos.extend(e.event_id for e in pagina.eventos)
         if not pagina.hay_mas:
             break
-        desde = max(e.server_seq for e in pagina.eventos)
+        desde = pagina.server_seq  # el cliente real usa este campo, no los items
         assert paginas < 20  # cota de seguridad contra bucles infinitos
 
     assert len(vistos) == 25
@@ -59,7 +59,7 @@ def test_pull_interrumpido_a_mitad_de_pagina_no_pierde_ni_duplica(db_session):
 
     # "Corte de red": el cliente se queda solo con lo ya confirmado de la
     # primera página y reintenta desde ahí.
-    ultimo_confirmado = max(e.server_seq for e in primera_pagina.eventos)
+    ultimo_confirmado = primera_pagina.server_seq
 
     resto: list[str] = [e.event_id for e in primera_pagina.eventos]
     desde = ultimo_confirmado
@@ -68,7 +68,27 @@ def test_pull_interrumpido_a_mitad_de_pagina_no_pierde_ni_duplica(db_session):
         resto.extend(e.event_id for e in pagina.eventos)
         if not pagina.hay_mas:
             break
-        desde = max(e.server_seq for e in pagina.eventos)
+        desde = pagina.server_seq
 
     assert len(resto) == 12
     assert len(set(resto)) == 12
+
+
+def test_server_seq_de_la_pagina_no_es_el_contador_global(db_session):
+    """Regresión: server_seq en la respuesta de /sync/pull debe ser el
+    mayor server_seq efectivamente entregado en ESA página, nunca el
+    contador global del servidor — de lo contrario un cliente que pagina
+    con un límite menor al total salta directo al final y pierde las
+    páginas intermedias en su siguiente `desde`."""
+    _empujar_n_eventos(db_session, 205)  # supera el límite real de 200 del cliente
+
+    primera_pagina = servicio.pull(db_session, "DISPOSITIVO-B", 0, limite=200)
+    assert len(primera_pagina.eventos) == 200
+    assert primera_pagina.hay_mas is True
+    assert primera_pagina.server_seq == 200  # no 205 (el contador global)
+
+    segunda_pagina = servicio.pull(
+        db_session, "DISPOSITIVO-B", primera_pagina.server_seq, limite=200
+    )
+    assert len(segunda_pagina.eventos) == 5
+    assert segunda_pagina.hay_mas is False

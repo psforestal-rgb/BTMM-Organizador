@@ -10,12 +10,25 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:4173',
     trace: 'retain-on-failure',
   },
-  webServer: {
-    command: 'npm run preview -- --port 4173',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: false,
-    timeout: 60_000,
-  },
+  webServer: [
+    {
+      command: 'npm run preview -- --port 4173',
+      url: 'http://127.0.0.1:4173',
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+    {
+      // Servidor real para el escenario canónico (CA-11/CA-12): base de
+      // datos propia y efímera, migrada desde cero en cada corrida.
+      command:
+        'rm -f geo_e2e.db && ./.venv/bin/alembic upgrade head && ./.venv/bin/uvicorn geo.api.main:app --host 127.0.0.1 --port 8000',
+      cwd: '../server',
+      env: { GEO_DATABASE_URL: 'sqlite:///./geo_e2e.db' },
+      url: 'http://127.0.0.1:8000/health',
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+  ],
   projects: [
     {
       name: 'chromium',

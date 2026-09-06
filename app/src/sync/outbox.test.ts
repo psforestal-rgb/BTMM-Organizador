@@ -60,6 +60,10 @@ class AdaptadorFalso implements SyncAdapter {
       ultimaConexionAt: null,
     }
   }
+
+  async conflictosAbiertos() {
+    return []
+  }
 }
 
 describe('encolarEvento', () => {
@@ -173,6 +177,44 @@ describe('sincronizar', () => {
     const actualizada = await db.asignaciones.get(asignacionId)
     expect(actualizada?.prioridad).toBe(4)
     expect(actualizada?.field_meta.prioridad?.device_id).toBe('DISPOSITIVO-B')
+  })
+
+  it('materializa la entidad al recibir un evento *_creada de otro dispositivo', async () => {
+    const asignacionId = crypto.randomUUID()
+    adapter.eventosServidor.push({
+      event_id: crypto.randomUUID(),
+      entity_type: 'asignacion',
+      entity_id: asignacionId,
+      event_type: 'asignacion_creada',
+      occurred_at: '2026-09-08T08:00:00-06:00',
+      recorded_at: '2026-09-08T08:00:00-06:00',
+      device_id: 'DISPOSITIVO-B',
+      client_sequence: 1,
+      base_version: null,
+      payload: {
+        titulo: 'Informe técnico CASO-2026-001',
+        carril: 'planificado',
+        duracion_estimada_min: 90,
+        vencimiento: '2026-09-08',
+        prioridad: 3,
+        indivisible: false,
+        dependencias: [],
+        contexto: null,
+        iniciativa_id: null,
+        tramite_id: null,
+        estado: 'programado',
+        fecha_revision: null,
+        fecha_pospuesto: null,
+        motivo: null,
+      },
+      server_seq: 1,
+    })
+
+    await sincronizar(db, adapter, 'DISPOSITIVO-A', '2026-09-08T08:05:00-06:00')
+
+    const materializada = await db.asignaciones.get(asignacionId)
+    expect(materializada?.titulo).toBe('Informe técnico CASO-2026-001')
+    expect(materializada?.duracion_estimada_min).toBe(90)
   })
 
   it('reintenta con retroceso exponencial ante fallos y termina confirmando', async () => {

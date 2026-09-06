@@ -3,6 +3,7 @@
 // siendo puro en src/dominio/planificador.ts.
 
 import type { CandidataPlan, EntradaPlanificador } from '../dominio/planificador'
+import { diferenciaEnMs } from '../dominio/marcaTemporal'
 import type { GeoDexie } from './db'
 import { obtenerConfiguracion } from './configuracion'
 
@@ -55,17 +56,45 @@ export async function construirEntradaPlanificador(
     .reduce((total, a) => total + (a.minutos_reales ?? 0), 0)
 
   const asignacionesAbiertas = await db.asignaciones.where('estado').equals('programado').toArray()
-  const candidatas: CandidataPlan[] = asignacionesAbiertas.map((a) => ({
-    id: a.id,
-    titulo: a.titulo,
-    carril: a.carril,
-    duracionMin: a.duracion_estimada_min,
-    vencimiento: a.vencimiento,
-    prioridad: a.prioridad,
-    indivisible: a.indivisible,
-    dependenciasCumplidas: a.dependencias.length === 0,
-    iniciativaId: a.iniciativa_id,
-  }))
+  const todasLasActividades = await db.actividades.toArray()
+  const todasLasInterrupciones = await db.interrupciones.toArray()
+
+  const candidatas: CandidataPlan[] = []
+  for (const a of asignacionesAbiertas) {
+    const actividadesDeEsta = todasLasActividades.filter((act) => act.asignacion_id === a.id)
+
+    let minutosYaEjecutados = 0
+    let marcadorReanudacion: string | null = null
+    for (const act of actividadesDeEsta) {
+      // Una actividad que ya fue interrumpida alguna vez lleva su
+      // interrupción registrada aunque luego se haya reanudado (vuelto a
+      // "en_curso"): esos minutos previos a la interrupción cuentan como
+      // ya ejecutados y el marcador sigue mostrándose como contexto.
+      const interrupcion = todasLasInterrupciones.find((i) => i.actividad_id === act.id)
+      if (interrupcion) {
+        minutosYaEjecutados += Math.round(diferenciaEnMs(interrupcion.inicio, act.iniciada_en) / 60000)
+        if (act.marcador_reanudacion) marcadorReanudacion = act.marcador_reanudacion
+      } else if (act.estado === 'finalizada') {
+        minutosYaEjecutados += act.minutos_reales ?? 0
+      }
+    }
+
+    const duracionMin = Math.max(0, a.duracion_estimada_min - minutosYaEjecutados)
+    if (duracionMin === 0) continue
+
+    candidatas.push({
+      id: a.id,
+      titulo: a.titulo,
+      carril: a.carril,
+      duracionMin,
+      vencimiento: a.vencimiento,
+      prioridad: a.prioridad,
+      indivisible: a.indivisible,
+      dependenciasCumplidas: a.dependencias.length === 0,
+      iniciativaId: a.iniciativa_id,
+      marcadorReanudacion,
+    })
+  }
 
   const iniciativas = await db.iniciativas.toArray()
 

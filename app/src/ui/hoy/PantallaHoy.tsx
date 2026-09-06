@@ -8,7 +8,11 @@ import {
   reanudarActividad,
   registrarFinDeEmergente,
 } from '../../datos/actividades'
-import { crearAsignacion, type DependenciasEscritura } from '../../datos/asignaciones'
+import {
+  cambiarCampoAsignacion,
+  crearAsignacion,
+  type DependenciasEscritura,
+} from '../../datos/asignaciones'
 import { construirEntradaPlanificador } from '../../datos/planificadorDatos'
 import { creadorDeSecuencia } from '../../datos/secuencia'
 import type { Carril, Interrupcion } from '../../dominio/tipos'
@@ -153,6 +157,9 @@ export function PantallaHoy() {
           <p>
             {asignacionPorId.get(bloqueEnCurso.candidataId)?.titulo ?? bloqueEnCurso.candidataId} (
             {bloqueEnCurso.inicio}–{bloqueEnCurso.fin}) — {bloqueEnCurso.justificacion.texto}
+            {bloqueEnCurso.marcadorReanudacion && (
+              <> Retomando: <strong>{bloqueEnCurso.marcadorReanudacion}</strong></>
+            )}
           </p>
         ) : (
           <p>Sin bloque programado en este momento.</p>
@@ -198,6 +205,9 @@ export function PantallaHoy() {
           <p>
             {asignacionPorId.get(proximoBloque.candidataId)?.titulo ?? proximoBloque.candidataId} (
             {proximoBloque.inicio}–{proximoBloque.fin})
+            {proximoBloque.marcadorReanudacion && (
+              <> Retomando: <strong>{proximoBloque.marcadorReanudacion}</strong></>
+            )}
           </p>
         ) : (
           <p>Nada más programado por hoy.</p>
@@ -211,7 +221,36 @@ export function PantallaHoy() {
             .filter((a) => a.estado === 'programado')
             .map((a) => (
               <li key={a.id}>
-                {a.titulo} — {a.duracion_estimada_min} min — prioridad {a.prioridad}
+                <span>{a.titulo}</span>
+                <label>
+                  Duración (min)
+                  <input
+                    type="number"
+                    min={5}
+                    value={a.duracion_estimada_min}
+                    aria-label={`Duración de ${a.titulo}`}
+                    onChange={(e) =>
+                      void cambiarCampoAsignacion(deps(), a.id, {
+                        duracion_estimada_min: Number(e.target.value),
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Prioridad
+                  <select
+                    value={a.prioridad}
+                    aria-label={`Prioridad de ${a.titulo}`}
+                    onChange={(e) =>
+                      void cambiarCampoAsignacion(deps(), a.id, { prioridad: Number(e.target.value) })
+                    }
+                  >
+                    <option value={1}>1 — baja</option>
+                    <option value={2}>2 — media</option>
+                    <option value={3}>3 — alta</option>
+                    <option value={4}>4 — crítica</option>
+                  </select>
+                </label>
                 {a.vencimiento ? ` — vence ${a.vencimiento}` : ''}
                 {!actividadEnCurso && !actividadInterrumpida && (
                   <button type="button" onClick={() => void iniciar(a.id)}>

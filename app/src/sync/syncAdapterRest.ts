@@ -2,7 +2,14 @@
 // servidor GEO. Debe poder sustituirse por PouchDB/CouchDB sin tocar el
 // dominio, porque el dominio nunca importa este archivo.
 
-import type { EstadoSync, Lote, ResultadoPull, ResultadoPush, SyncAdapter } from '../puertos'
+import type {
+  ConflictoRemoto,
+  EstadoSync,
+  Lote,
+  ResultadoPull,
+  ResultadoPush,
+  SyncAdapter,
+} from '../puertos'
 
 export class SyncAdapterRest implements SyncAdapter {
   private readonly baseUrl: string
@@ -78,5 +85,13 @@ export class SyncAdapterRest implements SyncAdapter {
       conflictosAbiertos: cuerpo.conflictos_abiertos,
       ultimaConexionAt: cuerpo.ultima_conexion_at,
     }
+  }
+
+  async conflictosAbiertos(): Promise<ConflictoRemoto[]> {
+    const respuesta = await fetch(`${this.baseUrl}/sync/conflictos`)
+    if (!respuesta.ok) {
+      throw new Error(`GET /sync/conflictos falló con estado ${respuesta.status}`)
+    }
+    return (await respuesta.json()) as ConflictoRemoto[]
   }
 }

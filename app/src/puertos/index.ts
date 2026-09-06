@@ -73,8 +73,26 @@ export interface EstadoSync {
   ultimaConexionAt: string | null
 }
 
+export interface ConflictoRemoto {
+  id: string
+  entity_type: string
+  entity_id: string
+  campo: string
+  valor_ganador: unknown
+  device_ganador: string
+  ts_ganador: string
+  valor_perdedor: unknown
+  device_perdedor: string
+  ts_perdedor: string
+  resuelto: boolean
+}
+
 export interface SyncAdapter {
   push(lote: Lote): Promise<ResultadoPush>
   pull(desde: number, limite: number): Promise<ResultadoPull>
   estado(): Promise<EstadoSync>
+  /** Extremo adicional (sección 6 solo exige push/pull/status/export,
+   * pero sin esto los conflictos generados en el servidor nunca serían
+   * visibles para el dispositivo que perdió la fusión). */
+  conflictosAbiertos(): Promise<ConflictoRemoto[]>
 }

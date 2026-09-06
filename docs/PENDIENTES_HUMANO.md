@@ -20,3 +20,12 @@
 - **Simplificaciones registradas en ADR**: ver `docs/adr/`. Cualquier ADR
   nuevo que ceda un criterio de aceptación ante un bloqueo real debe
   añadirse a esta lista con su número.
+- **CORS abierto (`allow_origins=["*"]`)** en `server/geo/api/main.py`:
+  aceptable para un prototipo sin autenticación ni datos personales que
+  corre en local, pero debe restringirse a orígenes explícitos antes de
+  cualquier despliegue con datos reales.
+- **Formulario de trámites**: el motor `app/src/dominio/tramites.ts`
+  (próxima acción a partir de etapas y dependencias) está implementado y
+  probado, pero no hay una pantalla para crear tipos de trámite ni
+  instancias — el escenario canónico no los usa, así que no bloquea
+  CA-12, pero es trabajo pendiente antes de un uso real con trámites.

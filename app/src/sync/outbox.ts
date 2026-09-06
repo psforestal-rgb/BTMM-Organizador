@@ -146,6 +146,26 @@ const TABLA_POR_ENTITY_TYPE: Record<string, keyof GeoDexie> = {
   configuracion: 'configuraciones',
 }
 
+/** Espejo de _aplicar_evento_creacion en el servidor: un evento
+ * "*_creada" recibido de otro dispositivo debe materializar la entidad
+ * aquí también, o nunca aparecería en las pantallas de este dispositivo. */
+async function materializarSiEsCreacion(db: GeoDexie, evento: EventoGEO): Promise<void> {
+  if (!evento.event_type.endsWith('_creada')) return
+  const tabla = TABLA_POR_ENTITY_TYPE[evento.entity_type]
+  if (!tabla) return
+  const coleccion = tablaGenerica(db, tabla)
+  const existente = await coleccion.get(evento.entity_id)
+  if (existente) return
+  const entidad = {
+    id: evento.entity_id,
+    version_id: evento.event_id,
+    field_meta: {},
+    eliminado: false,
+    ...evento.payload,
+  } as unknown as EntidadMutable
+  await coleccion.add(entidad)
+}
+
 export interface ResultadoSincronizacion {
   enviados: number
   confirmados: number
@@ -201,6 +221,7 @@ export async function sincronizar(
       } catch {
         // Ya lo teníamos (eco tolerado): la idempotencia no depende del filtro del servidor.
       }
+      await materializarSiEsCreacion(db, evento)
     }
     for (const cambioRaw of pagina.cambios) {
       const cambio = cambioRaw as CambioGEO
@@ -227,6 +248,29 @@ export async function sincronizar(
     ultimo_error: null,
   }
   await db.syncState.put(syncState)
+
+  // Los conflictos son un efecto server-side de la fusión: no viajan como
+  // evento ni como cambio, así que hay que pedirlos aparte para que el
+  // dispositivo que perdió la fusión también los vea (CA-11).
+  const conflictosRemotos = await conReintentos(() => adapter.conflictosAbiertos())
+  for (const remoto of conflictosRemotos) {
+    await db.conflictos.put({
+      id: remoto.id,
+      version_id: remoto.id,
+      field_meta: {},
+      eliminado: false,
+      entity_type: remoto.entity_type,
+      entity_id: remoto.entity_id,
+      campo: remoto.campo,
+      valor_ganador: remoto.valor_ganador,
+      device_ganador: remoto.device_ganador,
+      ts_ganador: remoto.ts_ganador,
+      valor_perdedor: remoto.valor_perdedor,
+      device_perdedor: remoto.device_perdedor,
+      ts_perdedor: remoto.ts_perdedor,
+      resuelto: remoto.resuelto,
+    })
+  }
 
   return {
     enviados: pendientes.length,

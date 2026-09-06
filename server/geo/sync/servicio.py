@@ -303,11 +303,16 @@ def pull(db: Session, device_id: str, desde: int, limite: int) -> PullResponse:
                 }
             )
 
-    server_seq_actual = db.get(SecuenciaGlobal, 1)
+    # server_seq aquí es el punto de control de ESTA página (el mayor
+    # server_seq efectivamente entregado), no el contador global del
+    # servidor: si se devolviera el global, un cliente que pagina con un
+    # límite menor al total pendiente saltaría directo al final y
+    # perdería las páginas intermedias en su próximo `desde`.
+    server_seq_pagina = max((seq for seq, _, _ in pagina), default=desde)
     return PullResponse(
         eventos=eventos_out,
         cambios=cambios_out,
-        server_seq=server_seq_actual.valor if server_seq_actual else 0,
+        server_seq=server_seq_pagina,
         hay_mas=hay_mas,
     )
 

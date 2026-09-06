@@ -26,12 +26,24 @@ export function PantallaBitacora() {
   const [persistente, setPersistente] = useState<boolean | null>(estadoAlmacenamientoConocido())
   const [sincronizando, setSincronizando] = useState(false)
   const [ultimoErrorSync, setUltimoErrorSync] = useState<string | null>(null)
+  const [enLinea, setEnLinea] = useState(navigator.onLine)
 
   useEffect(() => {
     if (persistente === null) {
       void solicitarAlmacenamientoPersistente().then(setPersistente)
     }
   }, [persistente])
+
+  useEffect(() => {
+    const marcarEnLinea = () => setEnLinea(true)
+    const marcarSinConexion = () => setEnLinea(false)
+    window.addEventListener('online', marcarEnLinea)
+    window.addEventListener('offline', marcarSinConexion)
+    return () => {
+      window.removeEventListener('online', marcarEnLinea)
+      window.removeEventListener('offline', marcarSinConexion)
+    }
+  }, [])
 
   const eventos = useLiveQuery(() => db.eventos.toArray(), [], [])
   const pendientes = useLiveQuery(() => db.outbox.where('estado').equals('pendiente').count(), [], 0)
@@ -67,6 +79,9 @@ export function PantallaBitacora() {
       </p>
 
       <div className="geo-panel" aria-label="Estado de sincronización">
+        <p role="status">
+          Conexión: <strong>{enLinea ? 'en línea' : 'sin conexión'}</strong>
+        </p>
         <p>
           Cambios pendientes: <strong>{pendientes}</strong>
         </p>
