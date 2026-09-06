@@ -1,17 +1,23 @@
 # Progreso — GEO v0.1.0-alpha
 
-**Fase cerrada**: 1 (núcleo de datos).
+**Fase cerrada**: 2 (motores puros).
 
 **Último commit**: (ver `git log --oneline -1` tras el commit de esta fase)
 
-**Próximo paso**: Fase 2 — motores puros (calendario de días hábiles,
-estados/espera, planificador greedy con buffer y justificaciones, radar
-de 7 reglas, cuotas de iniciativa) en `app/src/dominio` con Vitest.
+**Próximo paso**: Fase 3 — sincronización real (endpoints push/pull/status
+en el servidor, fusión por campo en `server/geo/sync/fusion.py` y su
+espejo en `app/src/sync/fusion.ts`, cola/outbox y reintentos en el
+cliente, prueba de dos dispositivos).
 
-**Nota de sintaxis TS**: `tsconfig.app.json` tiene `erasableSyntaxOnly`;
-no usar parameter properties (`constructor(private x)`) ni `enum` en
-ningún archivo de `app/src` — usar asignación explícita en el
-constructor y uniones de tipo string.
+**Motores puros ya implementados** en `app/src/dominio/`: `calendario.ts`
+(días hábiles CR), `tiempo.ts` (huecos de agenda), `marcaTemporal.ts`
+(aritmética ISO 8601 sin `Date`), `estados.ts` (transiciones + decisión de
+cierre sin descarte silencioso), `planificador.ts` (greedy determinista,
+buffer de absorción, fragmentación, cuotas de iniciativa),
+`replanificacion.ts` (interrupciones), `radar.ts` (7 reglas). Nota:
+CA-09 (cuotas) quedó resuelto dentro de `planificador.ts`, sin un archivo
+`iniciativas.ts` separado — ajustar la referencia en
+`docs/requisitos/CA-09.md` al escribir `INFORME_FINAL.md`.
 
 **Comandos de verificación**:
 ```

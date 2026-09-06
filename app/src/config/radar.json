@@ -1,0 +1,9 @@
+{
+  "sinMovimientoDias": 7,
+  "actividadSinCierreHoras": 12,
+  "capturaSinProcesarHoras": 48,
+  "pospuestoReiteradoMinEventos": 3,
+  "pospuestoReiteradoVentanaDias": 30,
+  "iniciativaSinAvanceDeudaUmbralMin": 60,
+  "capacidadProgramableEstimadaPorDiaMin": 300
+}

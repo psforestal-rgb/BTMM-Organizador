@@ -1,0 +1,17 @@
+{
+  "fuente": "PENDIENTE_VALIDACION_HUMANA — completar con la referencia normativa oficial (leyes y decretos de feriados de pago obligatorio y Ley 9209 de traslado de feriados a lunes) antes de cualquier uso real. Ver docs/PENDIENTES_HUMANO.md.",
+  "feriados": [
+    { "fecha": "2026-01-01", "nombre": "Año Nuevo", "pago": true, "trasladable": false, "fecha_efectiva": "2026-01-01" },
+    { "fecha": "2026-04-02", "nombre": "Jueves Santo", "pago": true, "trasladable": false, "fecha_efectiva": "2026-04-02" },
+    { "fecha": "2026-04-03", "nombre": "Viernes Santo", "pago": true, "trasladable": false, "fecha_efectiva": "2026-04-03" },
+    { "fecha": "2026-04-11", "nombre": "Día de Juan Santamaría", "pago": true, "trasladable": true, "fecha_efectiva": "2026-04-13" },
+    { "fecha": "2026-05-01", "nombre": "Día Internacional del Trabajo", "pago": true, "trasladable": false, "fecha_efectiva": "2026-05-01" },
+    { "fecha": "2026-07-25", "nombre": "Anexión del Partido de Nicoya", "pago": true, "trasladable": true, "fecha_efectiva": "2026-07-27" },
+    { "fecha": "2026-08-02", "nombre": "Día de la Virgen de los Ángeles", "pago": false, "trasladable": false, "fecha_efectiva": "2026-08-02" },
+    { "fecha": "2026-08-15", "nombre": "Día de la Madre", "pago": true, "trasladable": false, "fecha_efectiva": "2026-08-15" },
+    { "fecha": "2026-09-15", "nombre": "Día de la Independencia", "pago": true, "trasladable": false, "fecha_efectiva": "2026-09-15" },
+    { "fecha": "2026-10-12", "nombre": "Día de las Culturas", "pago": false, "trasladable": true, "fecha_efectiva": "2026-10-12" },
+    { "fecha": "2026-12-25", "nombre": "Navidad", "pago": true, "trasladable": false, "fecha_efectiva": "2026-12-25" },
+    { "fecha": "2027-01-01", "nombre": "Año Nuevo", "pago": true, "trasladable": false, "fecha_efectiva": "2027-01-01" }
+  ]
+}
