@@ -1,0 +1,63 @@
+:root {
+  color-scheme: light dark;
+  --geo-fondo: #f4f1ea;
+  --geo-texto: #1b1b1b;
+  --geo-acento: #1b3a4b;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--geo-fondo);
+  color: var(--geo-texto);
+}
+
+.geo-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.geo-contenido {
+  flex: 1;
+  padding: 1rem;
+  padding-bottom: 5rem;
+}
+
+.geo-tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  border-top: 1px solid #0002;
+  background: var(--geo-fondo);
+}
+
+.geo-tab {
+  flex: 1;
+  min-height: 3.25rem;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: var(--geo-texto);
+}
+
+.geo-tab--activa {
+  color: var(--geo-acento);
+  font-weight: 700;
+}
