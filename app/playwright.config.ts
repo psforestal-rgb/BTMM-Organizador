@@ -12,7 +12,15 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'npm run preview -- --port 4173',
+      // --host 127.0.0.1 explícito: sin él, Vite resuelve el string
+      // "localhost" con el orden de direcciones del sistema operativo, que
+      // no está garantizado igual entre entornos. En el runner de GitHub
+      // Actions se comprobó (vía DEBUG=pw:webserver) que el proceso
+      // arranca y queda escuchando, pero el chequeo de salud de Playwright
+      // contra 127.0.0.1 nunca recibe respuesta — consistente con un bind
+      // que quedó solo en ::1. Aquí sí se reprodujo con éxito, pero eso no
+      // prueba que el bind sea el mismo en ambos entornos.
+      command: 'npm run preview -- --port 4173 --host 127.0.0.1',
       url: 'http://127.0.0.1:4173',
       reuseExistingServer: false,
       timeout: 120_000,

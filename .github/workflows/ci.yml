@@ -87,4 +87,11 @@ jobs:
           ./.venv/bin/pip install -r requirements-dev.txt
       - name: Escenario canónico y demás pruebas end-to-end
         working-directory: app
+        env:
+          # Diagnóstico: el job falla en CI con "Timed out waiting Nms
+          # from config.webServer" sin ninguna pista (no reproducible en
+          # desarrollo). DEBUG=pw:webserver expone el ciclo de vida real
+          # (arranque de cada proceso, cada intento de conexión a su URL
+          # de salud) para identificar cuál de los dos servidores falla.
+          DEBUG: pw:webserver
         run: npx playwright test
