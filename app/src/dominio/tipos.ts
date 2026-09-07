@@ -15,6 +15,8 @@ export type EventType =
   | 'asignacion_creada'
   | 'asignacion_reprogramada'
   | 'estado_cambiado'
+  | 'tipo_tramite_creado'
+  | 'tramite_creado'
   | 'paso_completado'
   | 'espera_iniciada'
   | 'espera_revisada'

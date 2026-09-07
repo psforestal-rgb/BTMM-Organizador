@@ -18,6 +18,7 @@ import { creadorDeSecuencia } from '../../datos/secuencia'
 import type { Carril, Interrupcion } from '../../dominio/tipos'
 import { planificarDia } from '../../dominio/planificador'
 import { navegarA } from '../../router'
+import { PanelTramites } from './PanelTramites'
 
 function aHHMM(iso: string): string {
   return iso.slice(11, 16)
@@ -334,6 +335,8 @@ export function PantallaHoy() {
           </button>
         )}
       </div>
+
+      <PanelTramites />
 
       <button type="button" onClick={() => navegarA('capturar')} className="geo-boton-capturar">
         Capturar algo nuevo

@@ -217,6 +217,61 @@ describe('sincronizar', () => {
     expect(materializada?.duracion_estimada_min).toBe(90)
   })
 
+  it('materializa un trámite con evento *_creado (masculino) de otro dispositivo', async () => {
+    const tramiteId = crypto.randomUUID()
+    adapter.eventosServidor.push({
+      event_id: crypto.randomUUID(),
+      entity_type: 'tramite',
+      entity_id: tramiteId,
+      event_type: 'tramite_creado',
+      occurred_at: '2026-09-08T08:00:00-06:00',
+      recorded_at: '2026-09-08T08:00:00-06:00',
+      device_id: 'DISPOSITIVO-B',
+      client_sequence: 1,
+      base_version: null,
+      payload: {
+        tipo_tramite_id: 'tipo-1',
+        tipo_tramite_version: 1,
+        titulo: 'CASO-2026-001',
+        etapa_actual_id: null,
+        fecha_inicio: '2026-09-08',
+      },
+      server_seq: 1,
+    })
+
+    await sincronizar(db, adapter, 'DISPOSITIVO-A', '2026-09-08T08:05:00-06:00')
+
+    const materializado = await db.tramites.get(tramiteId)
+    expect(materializado?.titulo).toBe('CASO-2026-001')
+  })
+
+  it('materializa un paso_tramite al recibir un evento paso_completado de otro dispositivo', async () => {
+    const pasoId = crypto.randomUUID()
+    adapter.eventosServidor.push({
+      event_id: crypto.randomUUID(),
+      entity_type: 'paso_tramite',
+      entity_id: pasoId,
+      event_type: 'paso_completado',
+      occurred_at: '2026-09-08T08:00:00-06:00',
+      recorded_at: '2026-09-08T08:00:00-06:00',
+      device_id: 'DISPOSITIVO-B',
+      client_sequence: 1,
+      base_version: null,
+      payload: {
+        tramite_id: 'tramite-1',
+        etapa_id: 'e1',
+        estado: 'completado',
+        completado_en: '2026-09-08T08:00:00-06:00',
+      },
+      server_seq: 1,
+    })
+
+    await sincronizar(db, adapter, 'DISPOSITIVO-A', '2026-09-08T08:05:00-06:00')
+
+    const materializado = await db.pasosTramite.get(pasoId)
+    expect(materializado?.estado).toBe('completado')
+  })
+
   it('reintenta con retroceso exponencial ante fallos y termina confirmando', async () => {
     adapter.fallarPushVeces = 2
     const evento: EventoGEO = {

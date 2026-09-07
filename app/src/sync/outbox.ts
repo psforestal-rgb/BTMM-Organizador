@@ -146,11 +146,23 @@ const TABLA_POR_ENTITY_TYPE: Record<string, keyof GeoDexie> = {
   configuracion: 'configuraciones',
 }
 
-/** Espejo de _aplicar_evento_creacion en el servidor: un evento
- * "*_creada" recibido de otro dispositivo debe materializar la entidad
+/** "_creada"/"_creado": sufijo genérico de creación. Excepción única:
+ * "paso_completado" — no existe un "paso_tramite_creado" separado en el
+ * vocabulario porque completar una etapa es lo único que instancia su
+ * PasoTramite (dominio/tramites.ts trata la ausencia de fila como
+ * "pendiente"). Debe coincidir con _indica_creacion_de_entidad en el
+ * servidor (servicio.py). */
+function indicaCreacionDeEntidad(eventType: string): boolean {
+  return (
+    eventType.endsWith('_creada') || eventType.endsWith('_creado') || eventType === 'paso_completado'
+  )
+}
+
+/** Espejo de _aplicar_evento_creacion en el servidor: un evento de
+ * creación recibido de otro dispositivo debe materializar la entidad
  * aquí también, o nunca aparecería en las pantallas de este dispositivo. */
 async function materializarSiEsCreacion(db: GeoDexie, evento: EventoGEO): Promise<void> {
-  if (!evento.event_type.endsWith('_creada')) return
+  if (!indicaCreacionDeEntidad(evento.event_type)) return
   const tabla = TABLA_POR_ENTITY_TYPE[evento.entity_type]
   if (!tabla) return
   const coleccion = tablaGenerica(db, tabla)

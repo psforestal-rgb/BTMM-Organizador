@@ -68,11 +68,24 @@ def _evento_ya_recibido(db: Session, evento: EventoIn) -> bool:
     return existente is not None
 
 
+def _indica_creacion_de_entidad(event_type: str) -> bool:
+    """"_creada"/"_creado": sufijo genérico de creación. Excepción única:
+    "paso_completado" — no existe un "paso_tramite_creado" separado en el
+    vocabulario porque completar una etapa es lo único que instancia su
+    PasoTramite. Debe coincidir con indicaCreacionDeEntidad en el cliente
+    (app/src/sync/outbox.ts)."""
+    return (
+        event_type.endswith("_creada")
+        or event_type.endswith("_creado")
+        or event_type == "paso_completado"
+    )
+
+
 def _aplicar_evento_creacion(db: Session, evento: EventoIn) -> None:
-    """Si el event_type indica creación (`*_creada`), instancia la
-    entidad mutable correspondiente a partir de payload. Evita duplicar
-    si la entidad ya existe (reenvío)."""
-    if not evento.event_type.endswith("_creada"):
+    """Si el event_type indica creación, instancia la entidad mutable
+    correspondiente a partir de payload. Evita duplicar si la entidad ya
+    existe (reenvío)."""
+    if not _indica_creacion_de_entidad(evento.event_type):
         return
     clase = ENTIDADES_MUTABLES.get(evento.entity_type)
     if clase is None:
